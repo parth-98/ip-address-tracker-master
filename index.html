@@ -1,34 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- displays site properly based on user's device -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- displays site properly based on user's device -->
 
   <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
-  
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+
   <title>Frontend Mentor | IP Address Tracker</title>
 
   <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
   <style>
-    .attribution { font-size: 11px; text-align: center; }
-    .attribution a { color: hsl(228, 45%, 44%); }
+    .attribution {
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .attribution a {
+      color: hsl(228, 45%, 44%);
+    }
   </style>
 </head>
+
 <body>
 
-  IP Address Tracker
+  <div class="container">
+    <div class="heading-content">
+      <h1>IP Address Tracker</h1>
+      <div class="ip-form">
+        <input class="input" placeholder="Search for any IP address" value="">
+        <button class="submit-btn" type="submit"></button>
+      </div>
+      <div class="location-content">
+        <div class="location-info">
+          <p>ip address</p>
+          <h2 class="ip-address"></h2>
+        </div>
+        <div class="line"></div>
+        <div class="location-info">
+          <p>location</p>
+          <h2 class="location">ahmedabad,in</h2>
+        </div>
+        <div class="line"></div>
 
-  Search for any IP address or domain
+        <div class="location-info">
+          <p>timezone</p>
+          <h2 class="time">05:30</h2>
+        </div>
+        <div class="line"></div>
 
-  IP Address
-  Location
-  Timezone
-    UTC <!-- add offset value dynamically using the API -->
-  ISP
-  
+        <div class="location-info">
+          <p>isp</p>
+          <h2 class="isp"> GTPL Kuttch N/W Pvt. Ltd.</h2>
+        </div>
+      </div>
+    </div>
+    <div id="map"></div>
+  </div>
+
   <div class="attribution">
-    Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>. 
+    Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
     Coded by <a href="#">Your Name Here</a>.
   </div>
+
+  <script src="js/jquery.js" type="text/javascript"></script>
+
+  <script>
+
+
+
+
+    $(document).ready(function () {
+      var latitude, longitude;
+      navigator.geolocation.getCurrentPosition(show_location);
+
+      $.getJSON("http://ip-api.com/json", function (e) {
+        console.log(e.isp)
+        var hour = (new Date().getUTCHours() < 10) ? '0' + new Date().getUTCHours() : new Date().getUTCHours()
+        var minute = (new Date().getUTCMinutes() < 10) ? '0' + new Date().getUTCMinutes() : new Date().getUTCMinutes()
+        $('.ip-address').text(e.query);
+        $('.isp').text(e.isp);
+        $('.location').text(e.city + ',' + e.country);
+        $('.time').text('UTC+' + hour + ':' + minute);
+      }, "json");
+
+
+      $('.submit-btn').on('click', function (e) {
+        var ip = $('.input').val();
+        $.getJSON("http://ip-api.com/json/" + ip, function (data) {
+          var coords = new google.maps.LatLng(data.lat, data.lon);
+          var map = new google.maps.Map(document.getElementById("map"), {
+            center: coords,
+            zoom: 20,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            scaleControl: true,
+            gestureHandling: "none",
+            zoomControl: false,
+            fullscreenControl: false,
+            clickMarker: false
+
+          });
+                var marker = new google.maps.Marker({ position: coords, map: map, icon: "../images/icon-location.svg" });
+
+          // var marker = new google.maps.Marker({ position: coords, map });
+        });
+      });
+    })
+
+
+    function show_location(position) {
+      latitude = position.coords.latitude;
+      longitude = position.coords.longitude;
+      var coords = new google.maps.LatLng(latitude, longitude);
+
+      var map = new google.maps.Map(document.getElementById("map"), {
+        center: coords,
+        zoom: 20,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        scaleControl: true,
+        gestureHandling: "none",
+        zoomControl: false,
+        fullscreenControl: false,
+
+      });
+      
+      var marker = new google.maps.Marker({ position: coords, map: map, icon: "../images/icon-location.svg" });
+
+      // var marker = new google.maps.Marker({ position: coords, map });
+    }
+
+
+
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmDfXoZs6qnb6cb4FegjAh28nqXt9aWE4" />
+
+
 </body>
+
 </html>
